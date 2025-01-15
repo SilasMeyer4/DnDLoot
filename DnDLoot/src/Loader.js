@@ -7,6 +7,7 @@ export function initLoader(program) {
     const urlField = document.getElementById("urlText");
     const fileField = document.getElementById("filePath");
     const loadBtn = document.getElementById("loadBtn");
+    var dropedFile = null;
 
     function checkLoaderInputs()
     {
@@ -19,7 +20,7 @@ export function initLoader(program) {
         else if (urlField.value === "" && fileField.value === "")
         {
             loadBtn.disabled = true;
-            loadBtn.innerHTML = "Invalid";
+            loadBtn.innerHTML = "Load";
             loadBtn.style.backgroundColor = "";  
         } else {
             loadBtn.disabled = false;
@@ -49,7 +50,7 @@ export function initLoader(program) {
         if (file && file.name.endsWith(".csv"))
         {
             filePathInput.value = file.name;
-            program.addFile(file);
+            dropedFile = file;
             checkLoaderInputs();
         } 
         else
@@ -60,12 +61,33 @@ export function initLoader(program) {
     });
 
     document.getElementById("clearBtn").addEventListener("click", () => {
-        document.getElementById("urlText").value = "";
-        filePathInput.value = "";
+
+        if (confirm("This will delete ALL saved data!!! Are you sure, you want to delete everything?"))
+        {
+            document.getElementById("urlText").value = "Sucessfully Deleted Data";
+            filePathInput.value = "Sucessfully Deleted Data";
+        }
     });
 
-    loadBtn.addEventListener("click", () => {
-        fetchCSV(convertURLToExportCVSURL(urlField.value));
+    loadBtn.addEventListener("click", async () => {
+        
+        if (dropedFile && fileField.value !== "")
+        {
+            program.addFile(dropedFile);
+        } 
+        else if (urlField.vale !== null)
+        {
+            var fetchedFile = await fetchCSV(convertURLToExportCVSURL(urlField.value));
+            if (fetchedFile)
+            {
+                program.addFile(fetchedFile);
+            }
+            else
+            {
+                console.error("Error adding fetched data");
+            }
+        
+        }
     });
 
 }
@@ -90,21 +112,24 @@ export function convertURLToExportCVSURL(sheetUrl)
 
 }
 
-export function fetchCSV(sheetUrl) {
+export async function fetchCSV(sheetUrl) {
 
+    try {
+        const response = await fetch(sheetUrl);
+        const data = await response.text();
+        console.log("fetched data");
 
-    fetch(sheetUrl)
-        .then(response => response.text())
-        .then(data => {
-            console.log(data);
+        const blob = new Blob([data], {type: 'text/csv/'});
 
-            loadBtn.innerHTML = "Load";
-    })
-    .catch(error => {
+        const file = new File([blob], 'fetchedData.csv', {type: 'text/csv/'});
+        loadBtn.innerHTML = "Load";
+        return file
+    } catch(error) {
         console.error("Error fetching CSV data:", error);
         loadBtn.innerHTML = "Error";
         loadBtn.style.backgroundColor = "#4CAF50";
-    })
+        return null;
+    }
 }
 
 
