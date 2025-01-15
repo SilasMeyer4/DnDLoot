@@ -64,6 +64,7 @@ export function initLoader(program) {
 
         if (confirm("This will delete ALL saved data!!! Are you sure, you want to delete everything?"))
         {
+            program.classLootTables = [];
             document.getElementById("urlText").value = "Sucessfully Deleted Data";
             filePathInput.value = "Sucessfully Deleted Data";
         }
