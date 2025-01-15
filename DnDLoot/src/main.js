@@ -3,6 +3,7 @@ import { openTab } from './LoadTabs.js';
 import * as loaderFunctions from './Loader.js';
 import { Program } from './Program.js';
 
+
 document.querySelector('#app').innerHTML = `
   <div>
     <div class="tab">
@@ -39,27 +40,25 @@ document.querySelector('#app').innerHTML = `
 
 <div class="input-container">
     <div class="input-group">
-        <label>Class Loot</label>
+        <label for="classLoot">Class Loot</label>
         <div class="loot-fields">
             <input type="number" id="classLootAmount" placeholder="Amount">
             <input type="number" id="classLootChance" placeholder="Chance">
-            <input list="classLootClasses" id="classLoot" name="classLoot" placeholder="Enter Class">
-            <datalist id="classLootClasses">
-            </datalist>
-            <select id="classLootDropdown">
+            <!-- Replace datalist and dropdown with Select2 -->
+            <select id="classLootDropdown" class="select2" style="width: 100%">
+                <!-- Options will be dynamically populated by JavaScript -->
             </select>
         </div>
     </div>
 
     <div class="input-group">
-        <label>Type Loot</label>
+        <label for="typeLoot">Type Loot</label>
         <div class="loot-fields">
             <input type="number" id="typeLootAmount" placeholder="Amount">
-            <input type="number" id="typeLootChange" placeholder="Chance">
-            <input list="typeLootTypes" id="typeLoot" name="typeLoot" placeholder="Enter Type">
-            <datalist id="typeLootTypes">
-            </datalist>
-             <select id="typeLootDropdown">
+            <input type="number" id="typeLootChance" placeholder="Chance">
+            <!-- Replace datalist and dropdown with Select2 -->
+            <select id="typeLootDropdown" class="select2" style="width: 100%">
+                <!-- Options will be dynamically populated by JavaScript -->
             </select>
         </div>
     </div>
@@ -82,4 +81,21 @@ loaderFunctions.initLoader(program);
 
 window.openTab = openTab;
 document.querySelector('.tablinks').click();
+
+// Select2 initialization for the dropdowns
+$(document).ready(function() {
+  // Initialize Select2 for classLootDropdown
+  $('#classLootDropdown').select2({
+      tags: true,  // Allow typing custom values
+      placeholder: "Select or type a class",
+      allowClear: true
+  });
+
+  // Initialize Select2 for typeLootDropdown
+  $('#typeLootDropdown').select2({
+      tags: true,  // Allow typing custom values
+      placeholder: "Select or type a type",
+      allowClear: true
+  });
+});
 

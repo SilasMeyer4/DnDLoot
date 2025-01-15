@@ -202,6 +202,63 @@ input[type="text"] {
   color: white;
 }
 
+/* Style the selected item in the dropdown */
+.select2-container--default .select2-selection--single {
+  background-color: #333; /* Dark background for the selected item */
+  color: #fff; /* White text color */
+  border: 1px solid #444; /* Subtle border to match the dark theme */
+  padding: 10px 20px; /* Padding for better spacing */
+  border-radius: 4px;
+  font-size: 14px; /* Match the input size */
+  display: flex;
+  align-items: center; /* Center the text vertically */
+  justify-content: space-between; /* Space between text and arrow */
+}
+
+.select2-container--default .select2-selection--single:focus {
+  border-color: #646cff; /* Highlight border on focus */
+  box-shadow: 0 0 5px rgba(100, 100, 255, 0.5); /* Focus effect */
+}
+
+/* Ensure the text of the selected item is always white */
+.select2-container--default .select2-selection__rendered {
+  color: #fff !important; /* Force the text color to white */
+  text-align: center; /* Center the selected item */
+}
+
+/* Dropdown options */
+.select2-dropdown {
+  background-color: #333; /* Dark background for the dropdown */
+  color: #fff; /* White text for dropdown options */
+  border: 1px solid #444; /* Subtle border for dropdown */
+  border-radius: 4px;
+  padding: 5px 0; /* Reduce padding for better spacing */
+}
+
+.select2-container--default .select2-results__option {
+  background-color: #333; /* Dark background for options */
+  color: #fff; /* White text color */
+  padding: 12px 20px; /* Padding for better spacing */
+  font-size: 14px; /* Font size consistency */
+  text-align: center; /* Center the options */
+}
+
+.select2-container--default .select2-results__option[aria-selected="true"] {
+  background-color: #646cff; /* Highlight selected option */
+  color: white; /* White text for selected option */
+}
+
+.select2-container--default .select2-results__option:hover {
+  background-color: #444; /* Hover effect for options */
+}
+
+/* Arrow icon */
+.select2-container--default .select2-selection__arrow {
+  color: #fff; /* White arrow icon */
+  margin-left: 10px; /* Space between text and arrow */
+  font-size: 16px; /* Size the arrow appropriately */
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
