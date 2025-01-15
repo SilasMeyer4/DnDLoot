@@ -22,8 +22,11 @@ export class Program {
             const fileContent = event.target.result;
             console.log(`Finished Reading ${file.name}`);
             this.parseCSVData(fileContent);
+            console.log("Class Loot Data");
             console.log(this.classLootTables);
+            console.log("Type Loot Data");
             console.log(this.typeLootTables);
+            console.log("Pool Loot Data");
             console.log(this.poolLootTables);
 
             testArea.value = this.classLootTables;
@@ -82,8 +85,10 @@ export class Program {
 
                 if (tableType === 'class') {
                     this.classLootTables.push(currentTable);
+                    this.addLootOption('classLootDropdown', currentTable.name);
                 } else if (tableType === 'type') {
                     this.typeLootTables.push(currentTable);
+                    this.addLootOption('typeLootDropdown', currentTable.name);
                 } else if (tableType === 'pool') {
                     this.poolLootTables.push(currentTable);
                 }
@@ -117,5 +122,16 @@ export class Program {
         });
         return positions;
     }
-   
+
+    
+addLootOption(dropdownId, tableName) {
+    const dropdown = document.getElementById(dropdownId);
+    if (dropdown) {
+        const option = document.createElement('option');
+        option.value = tableName;
+        option.textContent = tableName;
+        dropdown.appendChild(option);
+    }
+} 
 }
+

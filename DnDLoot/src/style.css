@@ -121,11 +121,39 @@ button:focus-visible {
   border-top: none;
 } 
 
+.loot-fields {
+  display: flex;
+  gap: 10px; /* Space between the input fields */
+  align-items: center; /* Vertically align inputs if they have different heights */
+}
+
+input[type="number"],
+input[type="text"] {
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100px; /* or adjust according to your design */
+  box-sizing: border-box;
+}
+
+.input-container {
+  display: flex;
+  justify-content: center; /* Centers the input groups horizontally */
+  align-items: center; /* Centers the input groups vertically */
+  gap: 20px; /* Adds space between the two groups */
+  flex-wrap: wrap; /* Ensures the content wraps on smaller screens */
+  max-width: 100%; /* Ensures it doesn't stretch beyond its container */
+  margin: 0 auto; /* Centers the container */
+}
+
 .input-group {
   display: flex;
   flex-direction: column;
   margin-bottom: 15px;
 }
+
+
 
 label {
   margin-bottom: 5px;
@@ -184,5 +212,17 @@ input[type="text"] {
   }
   button {
     background-color: #f9f9f9;
+  }
+
+   .input-container {
+    flex-direction: column; /* Stack the input groups vertically */
+  }
+
+  .input-group {
+    width: 100%; /* Make each input group take up full width on small screens */
+  }
+
+  input[type="number"], input[type="text"] {
+    width: 100%; /* Inputs take full width on small screens */
   }
 }

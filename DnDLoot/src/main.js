@@ -19,7 +19,7 @@ document.querySelector('#app').innerHTML = `
 
         <div class="input-group">
             <label for="filePath">File</label>
-            <div id="dropZone">Drag & Drop CSV File Here or Enter Path Below</div>
+            <div id="dropZone">Drag & Drop CSV File</div>
             <input type="text" id="filePath">
         </div>
 
@@ -37,21 +37,33 @@ document.querySelector('#app').innerHTML = `
         <textarea id="testText" rows="5" cols="50"></textarea>
     </div>
 
+<div class="input-container">
     <div class="input-group">
         <label>Class Loot</label>
         <div class="loot-fields">
-            <input type="number" id="classLoot1" placeholder="Enter number">
-            <input type="number" id="classLoot2" placeholder="Enter number">
+            <input type="number" id="classLootAmount" placeholder="Amount">
+            <input type="number" id="classLootChance" placeholder="Chance">
+            <input list="classLootClasses" id="classLoot" name="classLoot" placeholder="Enter Class">
+            <datalist id="classLootClasses">
+            </datalist>
+            <select id="classLootDropdown">
+            </select>
         </div>
     </div>
 
     <div class="input-group">
         <label>Type Loot</label>
         <div class="loot-fields">
-            <input type="number" id="typeLoot1" placeholder="Enter number">
-            <input type="number" id="typeLoot2" placeholder="Enter number">
+            <input type="number" id="typeLootAmount" placeholder="Amount">
+            <input type="number" id="typeLootChange" placeholder="Chance">
+            <input list="typeLootTypes" id="typeLoot" name="typeLoot" placeholder="Enter Type">
+            <datalist id="typeLootTypes">
+            </datalist>
+             <select id="typeLootDropdown">
+            </select>
         </div>
     </div>
+</div>
 
     <div class="button-group">
         <button id="rollBtn">Roll</button>
