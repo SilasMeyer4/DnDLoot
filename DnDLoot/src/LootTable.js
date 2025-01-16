@@ -12,4 +12,9 @@ export class LootTable {
         });
         this.rows.push(rowObject);
     }
+
+    updateHeaders(newHeaders) {
+        this.headers = newHeaders;
+        this.rows = [];
+    }
 }

@@ -68,14 +68,24 @@ document.querySelector('#app').innerHTML = `
         <button id="rollBtn">Roll</button>
     </div>
 
-    <div class="output-group">
-        <textarea id="outputText" rows="5" cols="50" readonly></textarea>
-    </div>
+<div class="output-container">
+  <div class="history-group">
+    <label for="historyText">History</label>
+    <div id="historyText" class="history-box"></div>
+  </div>
+
+  <div class="output-group">
+    <label for="outputText">Output</label>
+    <div id="outputText" class="output-box"></div>
+  </div>
+</div>
     </div>
   </div>
 `
 
 const program = new Program();
+
+program.initProgram();
 
 loaderFunctions.initLoader(program);
 

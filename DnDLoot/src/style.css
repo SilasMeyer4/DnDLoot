@@ -202,6 +202,58 @@ input[type="text"] {
   color: white;
 }
 
+/* Container to align history and output side by side */
+.output-container {
+  display: flex;
+  justify-content: center; /* Center the content */
+  align-items: flex-start;
+  gap: 20px; /* Space between history and output */
+  width: 90%; /* Slight margin from the edges */
+  max-width: 100%;
+  margin: 20px auto; /* Center the container */
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+/* Shared styling for history and output boxes */
+.history-group .history-box,
+.output-group .output-box {
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #1a1a1a;
+  color: white;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  height: 300px; /* Increased height for better visibility */
+  overflow-y: auto; /* Enable scrolling */
+  white-space: pre-wrap; /* Preserve line breaks */
+  word-wrap: break-word; /* Prevent overflow */
+  box-sizing: border-box;
+  font-family: monospace; /* Console-like font */
+}
+
+/* Flex ratios for resizing */
+.history-group {
+  flex: 0 1 40%; /* 40% width */
+  min-width: 200px;
+}
+
+.output-group {
+  flex: 0 1 60%; /* 60% width */
+  min-width: 300px;
+}
+
+/* Labels for both groups */
+.history-group label,
+.output-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: white;
+}
+
 /* Style the selected item in the dropdown */
 .select2-container--default .select2-selection--single {
   background-color: #333; /* Dark background for the selected item */
@@ -281,5 +333,14 @@ input[type="text"] {
 
   input[type="number"], input[type="text"] {
     width: 100%; /* Inputs take full width on small screens */
+  }
+
+  .output-container {
+    flex-direction: column; /* Stack vertically on small screens */
+  }
+
+  .history-group,
+  .output-group {
+    flex: 0 0 100%; /* Full width on small screens */
   }
 }
