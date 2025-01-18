@@ -3,6 +3,15 @@ import { LootTable } from "./LootTable";
 const CLASS_TABLE_IDENTIFER = '@c';
 const TYPE_TABLE_IDENTIFER = '@t';
 const POOL_TABLE_IDENTIFER = '@p';
+const CLASS = 'class';
+const TYPE = 'type';
+const POOL = 'pool';
+const ITEM_NAME = 'Name';
+const POOL_NAME = "Pool Name";
+const DICE_VALUE = "Dice Value";
+const RATE = "Rate Value";
+const POOL_IDs = "Pool ID";
+const POOL_ITEM_ID = "Pool ID"
 
 export class Program {
     constructor() {
@@ -18,7 +27,6 @@ export class Program {
         this.fileList.push(file);
         console.log(`added ${file.name}`);
         
-        const testArea = document.getElementById("testText");
         const reader = new FileReader();
 
         reader.onload = (event) => {
@@ -31,9 +39,6 @@ export class Program {
             console.log(this.typeLootTables);
             console.log("Pool Loot Data");
             console.log(this.poolLootTables);
-
-            testArea.value = this.classLootTables;
-           
         }
 
         reader.onerror = (error) => {
@@ -70,13 +75,13 @@ export class Program {
 
             if (row.some(cell => cell.startsWith(CLASS_TABLE_IDENTIFER))){
                 detectedStartIndex = row.findIndex(cell => cell.startsWith(CLASS_TABLE_IDENTIFER));
-                tableType = 'class';
+                tableType = CLASS;
             } else if (row.some(cell => cell.startsWith(TYPE_TABLE_IDENTIFER))) {
                 detectedStartIndex = row.findIndex(cell => cell.startsWith(TYPE_TABLE_IDENTIFER));
-                tableType = 'type';
+                tableType = TYPE;
             } else if (row.some(cell => cell.startsWith(POOL_TABLE_IDENTIFER))) {
                 detectedStartIndex = row.findIndex(cell => cell.startsWith(POOL_TABLE_IDENTIFER));
-                tableType = 'pool';
+                tableType = POOL;
             }
 
             if (detectedStartIndex !== -1) 
@@ -85,10 +90,7 @@ export class Program {
                 const colHeaders = tableData[i+1].slice(detectedStartIndex).filter(header => header !== '');
 
                 //finds the index of rate value and ads a dice value col
-                const rateValueIndex = colHeaders.findIndex(header => header.toLowerCase() === "rate value");
-                if (rateValueIndex !== -1) {
-                    colHeaders.splice(rateValueIndex + 1, 0, "Dice Value");
-                }
+                colHeaders.push("Dice Value")
 
                 currentTable = this.getTableByName(tableName, tableType);
 
@@ -103,11 +105,11 @@ export class Program {
                     this.addLootOption(`${tableType}LootDropdown`, tableName);
                 }
 
-                if (tableType === 'class') {
+                if (tableType === CLASS) {
                     this.classLootTables.push(currentTable);
-                } else if (tableType === 'type') {
+                } else if (tableType === TYPE) {
                     this.typeLootTables.push(currentTable);
-                } else if (tableType === 'pool') {
+                } else if (tableType === POOL) {
                     this.poolLootTables.push(currentTable);
                 }
 
@@ -162,11 +164,11 @@ export class Program {
 
     getTableByName(tableName, tableType) {
         let tables;
-        if (tableType === 'class') {
+        if (tableType === CLASS) {
             tables = this.classLootTables;
-        } else if (tableType === 'type') {
+        } else if (tableType === TYPE) {
             tables = this.typeLootTables;
-        } else if (tableType === 'pool') {
+        } else if (tableType === POOL) {
             tables = this.poolLootTables;
         }
         return tables ? tables.find(table => table.name === tableName) : null;
@@ -232,17 +234,178 @@ export class Program {
 
 
                 if (randomVal >= min && randomVal <= max) {
-                    return row.Item;
+                    return { poolName: row["Item Pool"], poolIDs: row["Pool ID"], rateValue: row["Rate Value"]};
                 }
             } else {
                 // If Dice Value is a single number
                 if (randomVal === Number(diceValue)) {
-                    return row.Item;
+                    return {poolName: row["Item Pool"], poolIDs: row["Pool ID"], rateValue: row["Rate Value"]};
                 }
             }
         }
 
     return null;
+    }
+
+    getItemFromPool(itemPoolData)
+    {
+
+        const table = this.poolLootTables.find(table => table.name === itemPoolData.poolName);
+            if (table)
+            {
+                const poolIDValue = itemPoolData.poolIDs;
+                let pickedItemID;
+
+                if (poolIDValue.includes('-')) {
+                    const [min, max] = poolIDValue.split('-').map(Number);
+                    pickedItemID = Math.floor(Math.random() * (max - min + 1)) + min;
+                } else {
+                    pickedItemID = parseInt(poolIDValue);
+                }
+
+                console.log(`${pickedItemID} is picked ID`)
+                
+            
+                let item = table.rows.find(row => {
+                    const poolIDInRow = parseInt(row["Pool ID"]);
+                    return poolIDInRow === pickedItemID;
+                });
+
+                if (item !== undefined) {
+                    console.log(item);
+                    return item;
+                }
+
+            }
+ 
+        return null;
+    }
+
+    rollLootItems(lootTables, amountRolls, chanceRolls, dropdownValue, historyBox, outputBox) {
+        // Loop to handle loot rolls
+        for (let index = 0; index < amountRolls; index++) {
+            let randomVal = Math.random() * 100;
+            historyBox.innerHTML += `<span style="color: lightblue;">Rolling for Item ${index + 1}: <span style="color: white;">${randomVal.toFixed(2)}</span></span><br>`;
+    
+            // Check if item is dropped based on chance
+            if (randomVal < chanceRolls) {
+                historyBox.innerHTML += `<span style="color: green;"> → Item Dropped!</span><br>`;
+    
+                if (!dropdownValue || dropdownValue.trim() === '') {
+                    historyBox.innerHTML += `<span style="color: red;">No valid item pool provided</span><br>`;
+                    index += amountRolls; // pseudo return to exit loop
+                }
+    
+                let table = this.getTableByName(dropdownValue, lootTables);
+    
+                if (table === null) {
+                    historyBox.innerHTML += `<span style="color: red;">Table for pool "${dropdownValue}" doesn't exist</span><br>`;
+                    index += amountRolls; // exit loop
+                }
+    
+                let itemPoolData = this.rollItem(table);
+                const nameCol = table.columns.find(header =>
+                    header.toLowerCase() === "item pool"
+                );
+                
+                if (itemPoolData === null) {
+                    historyBox.innerHTML += `<span style="color: red;">Failed to get Item Pool Name</span><br>`;
+                    index += amountRolls; // exit loop
+                } else {
+                    historyBox.innerHTML += `<span style="color: teal;"> → Pool: ${itemPoolData.poolName}</span><br>`;
+    
+                    let item = this.getItemFromPool(itemPoolData);
+                    console.log(item);
+    
+                    if (item === null) {
+                        historyBox.innerHTML += `<span style="color: red;"> Pool or Pool ID does not exist</span><br>`;
+                    } else {
+                        historyBox.innerHTML += `<span style="color: green;"> → ${item["Name"]} ID: ${item["Pool ID"]}</span><br>`;
+                        outputBox.innerHTML += `<span style="color: green;"> → ${item["Name"]} was dropped</span><br>`;
+                        outputBox.scrollTop = outputBox.scrollHeight;
+                    }
+                }
+    
+            } else {
+                historyBox.innerHTML += `<span style="color: red;"> → No Item Dropped</span><br>`; 
+            }
+    
+            historyBox.innerHTML += `<span style="color: gray;">--------------------</span><br>`;
+            historyBox.scrollTop = historyBox.scrollHeight;
+        }
+    }
+
+    doRolls(amountField, chanceField, dropdown, kindOfTable)
+    {
+        let amount = amountField.value;
+        let chance = chanceField.value;
+        let name = dropdown.value;
+
+        const historyBox = document.getElementById("historyText");
+        const outputBox = document.getElementById("outputText");
+        let hasOutputLoot = false;
+
+        for (let index = 0; index < amount; index++) {
+            let randomVal = Math.random() * 100;
+            historyBox.innerHTML += `<span style="color: lightblue;">Rolling for Class Item ${index + 1}: <span style="color: white;">${randomVal.toFixed(2)}</span></span><br>`;
+
+            if (randomVal < chance)
+            {
+                historyBox.innerHTML += `<span style="color: green;"> → Item Dropped!</span><br>`;
+
+                if (!name || name.trim() === '') {
+                    historyBox.innerHTML += `<span style="color: red;">No valid class name provided</span><br>`;
+                    return false;
+                }
+        
+                let table = this.getTableByName(name, kindOfTable); //gets the type or class table
+
+                if (table === null) {
+                    historyBox.innerHTML += `<span style="color: red;">Table for class "${name}" doesn't exist</span><br>`;
+                    return false;
+                }
+
+                let itemPoolData = this.rollItem(table); //fetches the Information about the in the type class table 
+                const nameCol = table.columns.find(header =>
+                    header.toLowerCase() === "item pool"
+                );
+                
+                if (itemPoolData === null)
+                {
+                    historyBox.innerHTML += `<span style="color: red;">Failed to get Item Pool Name</span><br>`;
+                    return false;
+                }
+                else
+                {
+                    historyBox.innerHTML += `<span style="color: teal;"> → Pool: ${itemPoolData.poolName} (${((itemPoolData.rateValue / table.maxDiceValue) * 100).toFixed(2)}%)</span><br>`;
+
+                    let item = this.getItemFromPool(itemPoolData);
+
+                    console.log(item);
+
+                    if (item === null)
+                    {
+                        historyBox.innerHTML += `<span style="color: red;"> Pool or Pool ID does not exist</span><br>`;
+                    }
+                    else
+                    {
+                        historyBox.innerHTML += `<span style="color: green;"> → ${item["Name"]} ID: ${item["Pool ID"]}</span><br>`;
+                        outputBox.innerHTML += `<span style="color: green;"> → ${item["Name"]} was dropped</span><br>`;
+                        outputBox.scrollTop = outputBox.scrollHeight;
+                        hasOutputLoot = true;
+                    }
+                }
+
+            }
+            else
+            {
+                historyBox.innerHTML += `<span style="color: red;"> → No Item Dropped</span><br>`; 
+            }
+
+            historyBox.innerHTML += `<span style="color: gray;">--------------------</span><br>`;
+        }
+
+        return hasOutputLoot;
     }
 
 
@@ -258,84 +421,33 @@ export class Program {
         const typeChanceField = document.getElementById("typeLootChance");
         const typeDropdown = document.getElementById("typeLootDropdown");
 
-        const outputBox = document.getElementById("outputText");
         const historyBox = document.getElementById("historyText");
+        const outputBox = document.getElementById("outputText");
 
         rollBtn.addEventListener("click", (e) => {
          
-            let amountClassRolls = classAmountField.value;
-            let chanceClassRolls = classChanceField.value;
-            let className = classDropdown.value;
+            let hasOutputLoot = false;
 
-            let amountTypeRolls = typeAmountField.value;
-            let chanceTypeRolls = typeChanceField.value;
-            let typeName = typeDropdown.value;
-
-
-            //roll class items
-            for (let index = 0; index < amountClassRolls; index++) {
-                let randomVal = Math.random() * 100;
-                historyBox.innerHTML += `<span style="color: lightblue;">Rolling for Class Item ${index + 1}: <span style="color: white;">${randomVal.toFixed(2)}</span></span><br>`;
-
-                if (randomVal < chanceClassRolls)
-                {
-                    historyBox.innerHTML += `<span style="color: green;"> → Item Dropped!</span><br>`;
-
-                    if (!className || className.trim() === '') {
-                        historyBox.innerHTML += `<span style="color: red;">No valid class name provided</span><br>`;
-                        index += amountClassRolls; //pseudo return
-                    }
-            
-                    let table = this.getTableByName(className, 'class');
-
-                    if (table === null) {
-                        historyBox.innerHTML += `<span style="color: red;">Table for class "${className}" doesn't exist</span><br>`;
-                        index += amountClassRolls;
-                    }
-
-                    let itemPoolName = this.rollItem(table);
-                    
-                    if (itemPoolName === null)
-                    {
-                        `<span style="color: red;">Failed to get Item Pool Name</span><br>`;
-                        index += amountClassRolls;
-                    }
-                    else
-                    {
-                        historyBox.innerHTML += `<span style="color: teal;"> → Pool: ${itemPoolName}</span><br>`;
-                    }
-
-                }
-                else
-                {
-                    historyBox.innerHTML += `<span style="color: red;"> → No Item Dropped</span><br>`; 
-                }
-
-                historyBox.innerHTML += `<span style="color: gray;">--------------------</span><br>`;
-                historyBox.scrollTop = historyBox.scrollHeight;
+            if (this.doRolls(classAmountField, classChanceField, classDropdown, "class") || this.doRolls(typeAmountField, typeChanceField, typeDropdown, "type"))
+            {
+                hasOutputLoot = true;
             }
-
-
-            //roll type items
-            for (let index = 0; index < amountTypeRolls; index++) {
-                let randomVal = Math.random() * 100;
-                console.log(`Rolling for Type Item ${index + 1}: ${randomVal}`);
-
-                if (randomVal < chanceTypeRolls)
-                {
-                    console.log(`Item dropped!`);
-                }
-                else
-                {
-                    console.log(`No item dropped!`);
-                }
-            }
-
+        
             this.historyCounter++;
             historyBox.innerHTML += `<div style="background-color: gray; height: 5px; width: 100%; margin-top: 10px; margin-bottom: 10px;"></div>`;
             historyBox.innerHTML += `<div style="color: white; margin-top: 5px;">${this.historyCounter}</div>`;
             historyBox.innerHTML += `<div style="background-color: gray; height: 5px; width: 100%; margin-top: 10px; margin-bottom: 10px;"></div>`;
 
+            if (!hasOutputLoot)
+            {
+                outputBox.innerHTML += `<div style="color: red; margin-top: 5px;">Nothing</div>`;
+            }
+            outputBox.innerHTML += `<div style="background-color: gray; height: 5px; width: 100%; margin-top: 10px; margin-bottom: 10px;"></div>`;
+            outputBox.innerHTML += `<div style="color: white; margin-top: 5px;">${this.historyCounter}</div>`;
+            outputBox.innerHTML += `<div style="background-color: gray; height: 5px; width: 100%; margin-top: 10px; margin-bottom: 10px;"></div>`;
+
+            historyBox.scrollTop = historyBox.scrollHeight;
+            outputBox.scrollTop = outputBox.scrollHeight;
         });
 
     }
