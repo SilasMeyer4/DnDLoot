@@ -7,7 +7,7 @@ const CLASS = 'class';
 const TYPE = 'type';
 const POOL = 'pool';
 const ITEM_NAME = 'Name';
-const POOL_NAME = "Pool Name";
+const POOL_NAME = "Item Pool";
 const DICE_VALUE = "Dice Value";
 const RATE = "Rate Value";
 const POOL_IDs = "Pool ID";
@@ -90,7 +90,7 @@ export class Program {
                 const colHeaders = tableData[i+1].slice(detectedStartIndex).filter(header => header !== '');
 
                 //finds the index of rate value and ads a dice value col
-                colHeaders.push("Dice Value")
+                colHeaders.push(DICE_VALUE)
 
                 currentTable = this.getTableByName(tableName, tableType);
 
@@ -182,8 +182,8 @@ export class Program {
         let diceValueSum = 0;
 
         // Ensure "Dice Value" column exists
-        if (!table.columns.includes("Dice Value")) {
-            table.columns.push("Dice Value");
+        if (!table.columns.includes(DICE_VALUE)) {
+            table.columns.push(DICE_VALUE);
         }
 
         for (let i = 0; i < table.rows.length; i++) {
@@ -197,7 +197,7 @@ export class Program {
 
             // Get the "Rate Value" or "Drop Rate" field
             const rateValueKey = table.columns.find(header =>
-                header.toLowerCase() === "rate value" || header.toLowerCase() === "drop rate"
+                header === RATE || header.toLowerCase() === "drop rate"
             );
 
             const rateValue = parseInt(row[rateValueKey]) || 0;
@@ -206,7 +206,7 @@ export class Program {
             const diceEnd = diceValueSum + rateValue;
 
             // Assign Dice Value range as a new property
-            row["Dice Value"] = rateValue > 1 ? `${diceStart}-${diceEnd}` : `${diceStart}`;
+            row[DICE_VALUE] = rateValue > 1 ? `${diceStart}-${diceEnd}` : `${diceStart}`;
 
             // Update the cumulative dice value
             diceValueSum += rateValue;
@@ -226,7 +226,7 @@ export class Program {
         let randomVal = Math.floor(Math.random() * table.maxDiceValue) + 1;
 
         for (let row of table.rows) {
-            let diceValue = row["Dice Value"];
+            let diceValue = row[DICE_VALUE];
 
             //checks for a range and converts it to numbers
             if (diceValue.includes('-')) {
@@ -234,12 +234,12 @@ export class Program {
 
 
                 if (randomVal >= min && randomVal <= max) {
-                    return { poolName: row["Item Pool"], poolIDs: row["Pool ID"], rateValue: row["Rate Value"]};
+                    return { poolName: row[POOL_NAME], poolIDs: row["Pool ID"], rateValue: row[RATE]};
                 }
             } else {
                 // If Dice Value is a single number
                 if (randomVal === Number(diceValue)) {
-                    return {poolName: row["Item Pool"], poolIDs: row["Pool ID"], rateValue: row["Rate Value"]};
+                    return {poolName: row[POOL_NAME], poolIDs: row["Pool ID"], rateValue: row[RATE]};
                 }
             }
         }
@@ -305,7 +305,7 @@ export class Program {
     
                 let itemPoolData = this.rollItem(table);
                 const nameCol = table.columns.find(header =>
-                    header.toLowerCase() === "item pool"
+                    header === POOL_NAME
                 );
                 
                 if (itemPoolData === null) {
@@ -320,8 +320,8 @@ export class Program {
                     if (item === null) {
                         historyBox.innerHTML += `<span style="color: red;"> Pool or Pool ID does not exist</span><br>`;
                     } else {
-                        historyBox.innerHTML += `<span style="color: green;"> → ${item["Name"]} ID: ${item["Pool ID"]}</span><br>`;
-                        outputBox.innerHTML += `<span style="color: green;"> → ${item["Name"]} was dropped</span><br>`;
+                        historyBox.innerHTML += `<span style="color: green;"> → ${item[ITEM_NAME]} ID: ${item["Pool ID"]}</span><br>`;
+                        outputBox.innerHTML += `<span style="color: green;"> → ${item[ITEM_NAME]} was dropped</span><br>`;
                         outputBox.scrollTop = outputBox.scrollHeight;
                     }
                 }
@@ -367,7 +367,7 @@ export class Program {
 
                 let itemPoolData = this.rollItem(table); //fetches the Information about the in the type class table 
                 const nameCol = table.columns.find(header =>
-                    header.toLowerCase() === "item pool"
+                    header === POOL_NAME
                 );
                 
                 if (itemPoolData === null)
@@ -389,8 +389,8 @@ export class Program {
                     }
                     else
                     {
-                        historyBox.innerHTML += `<span style="color: green;"> → ${item["Name"]} ID: ${item["Pool ID"]}</span><br>`;
-                        outputBox.innerHTML += `<span style="color: green;"> → ${item["Name"]} was dropped</span><br>`;
+                        historyBox.innerHTML += `<span style="color: green;"> → ${item[ITEM_NAME]} ID: ${item["Pool ID"]}</span><br>`;
+                        outputBox.innerHTML += `<span style="color: green;"> → ${item[ITEM_NAME]} was dropped</span><br>`;
                         outputBox.scrollTop = outputBox.scrollHeight;
                         hasOutputLoot = true;
                     }
