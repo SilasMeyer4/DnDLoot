@@ -3,6 +3,7 @@ export class LootTable {
         this.name = name;
         this.columns = columns;
         this.rows = [];
+        this.maxDiceValue = 0;
     }
 
     addRow(rowData){
@@ -13,6 +14,10 @@ export class LootTable {
         this.rows.push(rowObject);
     }
 
+    /**
+     * Updates an already existing table.
+     * @param { } newHeaders 
+     */
     updateHeaders(newHeaders) {
         this.headers = newHeaders;
         this.rows = [];
